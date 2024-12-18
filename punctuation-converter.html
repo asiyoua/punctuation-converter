@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中英文排版转换</title>
+    <style>
+        /* 全局样式 */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            resize: none;
+            transition: box-shadow 0.3s ease-in-out;
+        }
+
+        textarea:focus {
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+            border-color: #007bff;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2rem;
+            background: linear-gradient(90deg, #36d1dc, #5b86e5);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(91, 134, 229, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        .output-area {
+            margin-top: 20px;
+        }
+
+        .output-area textarea {
+            background: #f9f9f9;
+            border-color: #e0e0e0;
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        footer a {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>中英文排版转换</h1>
+        <textarea id="inputText" placeholder="请输入文本..."></textarea>
+        <button onclick="convertText()">转换</button>
+        <div class="output-area">
+            <textarea id="outputText" readonly placeholder="转换后的文本..."></textarea>
+        </div>
+        <footer>
+            <p>由 <a href="#">卫清遥</a> 提供技术支持</p>
+        </footer>
+    </div>
+
+    <script>
+        const charMap = {
+            ',': '，', '.': '。', '!': '！', '?': '？', ':': '：', ';': '；',
+            '\'': '’', '(': '（', ')': '）', '[': '【', ']': '】', '{': '｛', '}': '｝'
+        };
+
+        let isOpenQuote = false;
+
+        function handleQuotes(char) {
+            if (char === '"') {
+                const converted = isOpenQuote ? '”' : '“';
+                isOpenQuote = !isOpenQuote;
+                return converted;
+            }
+            return char;
+        }
+
+        function isUrl(text) {
+            const urlPattern = /https?:\/\/[^\s]+/g;
+            return urlPattern.test(text);
+        }
+
+        function isEnglishWord(text) {
+            const wordPattern = /^[a-zA-Z]+$/;
+            return wordPattern.test(text);
+        }
+
+        function isNumericSequence(text) {
+            const numericPattern = /^\d+(\.\d+)*([a-zA-Z]?)$/;
+            return numericPattern.test(text);
+        }
+
+        function convertEllipsis(text) {
+            return text.replace(/\.{2,}/g, '……');
+        }
+
+        function convertText() {
+            const input = document.getElementById("inputText").value;
+
+            const output = input.split(/(\s+)/).map(token => {
+                if (isUrl(token) || isEnglishWord(token) || isNumericSequence(token)) {
+                    return token;
+                }
+
+                return token.split('').map((char, index, arr) => {
+                    if (arr.slice(index, index + 2).join('') === '..') {
+                        return '';
+                    }
+
+                    if (char === '.' && index > 0 && /\d/.test(arr[index - 1])) {
+                        return '.';
+                    }
+
+                    char = handleQuotes(char);
+
+                    if (charMap[char]) {
+                        return charMap[char];
+                    }
+
+                    return char;
+                }).join('');
+            }).join('');
+
+            document.getElementById("outputText").value = convertEllipsis(output);
+        }
+    </script>
+</body>
+</html>
