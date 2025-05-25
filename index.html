@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中英文排版转换器 (修正版 v4)</title>
+    <title>中英文排版转换器 (修正版 v5)</title>
     <style>
         /* 全局重置和基础样式 */
         * {
@@ -283,7 +283,7 @@
         <div class="editor-area">
             <div class="text-panel">
                 <label for="inputText">输入文本 (Input Text):</label>
-                <textarea id="inputText" placeholder="在此输入需要转换的文本... 例如：Hello world, this is a test. 'Open quotes' and "double quotes" will be converted. 网址 https://notebooklm.google.com/notebook/1d13d9bc-42a4-4d2c-9e53-521550fab29a 和图片 ![[@meta/pictures/image.png]] 以及数字序号 1.2.3 或 Fig2.1 会被正确处理。"></textarea>
+                <textarea id="inputText" placeholder="在此输入需要转换的文本... 例如：1. Hello world. Check item 2.a. or section 3.1.1. Also URL https://example.com and Fig1, v2.0."></textarea>
             </div>
             <div class="text-panel">
                 <label for="outputText">转换后文本 (Converted Text):</label>
@@ -339,15 +339,7 @@
             return char;
         }
 
-        /**
-         * [修正] 检查给定字符串是否为URL。
-         * 使用一个更稳定和常见的正则表达式来识别URL。
-         * @param {string} text - 需要检查的字符串。
-         * @returns {boolean} 如果字符串匹配URL模式，则为true，否则为false。
-         */
         function isUrl(text) {
-            // 这个正则表达式旨在匹配常见的URL格式，同时避免过于复杂导致错误。
-            // 它支持http, https, ftp协议，域名，以及可选的路径和查询参数。
             const urlPattern = /^(https?:\/\/|ftp:\/\/)?([\w.-]+)\.([a-z]{2,63})([\/\w .-]*)*\/?(\?[\w%&=.-]*)?(#[\w-]*)?$/i;
             return urlPattern.test(text);
         }
@@ -363,25 +355,60 @@
         }
 
         /**
-         * [修正] 检查给定字符串是否为数字序列或常见的字母数字序列。
-         * 使用一个相对简单和稳定的正则表达式。
+         * [修正 v5] 检查给定字符串是否为数字序号或应保留格式的数字序列。
+         * 此函数经过优化，以正确处理如 "1."、"1.23"、"Fig1"、"A.1." 等情况。
          * @param {string} text - 需要检查的字符串。
-         * @returns {boolean} 如果字符串匹配数字/字母数字序列模式，则为true。
+         * @returns {boolean} 如果字符串被认为是应保留的数字序列，则为true。
          */
         function isNumericSequence(text) {
-            // 匹配如: "123", "1.2", "1.2.3", "Fig1", "A1.2", "v2.0b"
-            // 允许字母开头或结尾，允许内部有小数点。
-            const numericPattern = /^[a-zA-Z]*[0-9]+([.\/][0-9]+)*[a-zA-Z]*$/;
-            // 确保字符串中必须包含至少一个数字，以避免匹配纯字母的 "Fig" 等。
-            if (/[0-9]/.test(text) && numericPattern.test(text)) {
+            if (text === null || typeof text === 'undefined' || text.trim() === "") {
+                return false;
+            }
+
+            // 1. 匹配列表式序号或以点结尾的版本号 (例如: "1.", "A.", "1.2.", "Fig.1.", "v1.0.")
+            //    要求至少有一个字母或数字，可以包含内部的点/斜杠，并且必须以点结尾。
+            //    不允许单独一个点 "." 被匹配。
+            const listStylePattern = /^(?:[a-zA-Z0-9]+(?:[.\/][a-zA-Z0-9]+)*|[a-zA-Z0-9]+)\.$/;
+            if (text !== "." && listStylePattern.test(text)) {
                 return true;
             }
-            // 额外处理纯数字的情况 (例如 "123")
-            if (/^\d+(\.\d+)*$/.test(text)){
-                 return true;
+
+            // 2. 匹配标准数字 (整数或小数，例如: "123", "0.5", "10.01")
+            //    不允许以点结尾 (这种情况应由 listStylePattern 覆盖，如 "123.").
+            const decimalPattern = /^\d+(?:\.\d+)?$/;
+            if (decimalPattern.test(text)) {
+                // 确保不是一个已经被listStylePattern处理的以点结尾的数字 (例如 "123." listStylePattern会匹配)
+                // decimalPattern 本身不匹配 "123."，所以此处的额外检查可能多余，但保留以明确意图。
+                if (!text.endsWith('.')) {
+                     return true;
+                }
             }
+
+            // 3. 匹配不以点结尾的字母数字混合序列 (例如: "Fig1", "v2", "A10", "Section3A", "1.2.3")
+            //    可以包含字母、数字、内部的点，但不以点结尾。
+            //    确保包含数字。
+            const generalAlphanumPattern = /^[a-zA-Z]*[0-9]+[a-zA-Z0-9]*(?:[.\/][a-zA-Z0-9]+)*[a-zA-Z0-9]*$/;
+            if (/[0-9]/.test(text) && generalAlphanumPattern.test(text) && !text.endsWith('.')) {
+                 // 进一步确保它不是一个简单的整数或小数（已被decimalPattern覆盖）
+                 // 且不是一个应由listStylePattern处理的以点结尾的模式
+                 // 这个模式主要用于 Fig1, v2.0b 等
+                 if (!decimalPattern.test(text)) { // 如果不是纯小数/整数
+                    return true;
+                 } else if (/[a-zA-Z]/.test(text)) { // 如果是小数/整数但包含字母 (如Fig1)
+                    return true;
+                 }
+            }
+            
+            // 确保纯整数（如 "0", "123"）能被正确识别（decimalPattern已覆盖）
+            // 确保如 "1.2.3" （不带末尾点）能被识别
+            const versionLikePattern = /^\d+(?:\.\d+)+$/; // 例如 "1.0.0", "2.34.5"
+            if (versionLikePattern.test(text) && !text.endsWith('.')) {
+                return true;
+            }
+
             return false;
         }
+
 
         function convertEllipsis(text) {
             return text.replace(/\.{2,}/g, '……');
@@ -389,7 +416,7 @@
 
         // --- 自定义转换规则管理 ---
         function loadCustomRules() {
-            const storedRules = localStorage.getItem('customConversionRules_v4'); // 更新版本号
+            const storedRules = localStorage.getItem('customConversionRules_v5');
             if (storedRules) {
                 customRules = JSON.parse(storedRules);
             }
@@ -397,7 +424,7 @@
         }
 
         function saveCustomRules() {
-            localStorage.setItem('customConversionRules_v4', JSON.stringify(customRules));
+            localStorage.setItem('customConversionRules_v5', JSON.stringify(customRules));
         }
 
         function addCustomRule() {
@@ -467,79 +494,31 @@
 
             let processedText = applyCustomRules(inputText);
             processedText = convertEllipsis(processedText);
-
-            // 使用更智能的分词策略，尝试在保留URL等整体性的同时，正确分割标点符号
-            const tokens = [];
-            let currentSegment = "";
-            let i = 0;
-            while (i < processedText.length) {
-                let foundSpecialToken = false;
-                // 优先匹配已知需要保留的较长token类型 (URL, ImageFormat)
-                // 简单起见，我们先按空格和主要标点分，然后在map中用isUrl等判断
-                // 以下是一种更直接的预先识别并分割特殊token的思路，但当前版本依旧使用split后判断
-
-                // 当前版本的分词：按空格或标点前后分割
-                // (\s+|(?<=[^\s\w])|(?=[^\s\w]))  <-- 这个正则会导致URL中特殊字符也被分割
-                // 简单地按空格分，然后在map中判断token是否是URL
-                 // 更改分词策略：优先识别非空格的连续字符块，然后对这些块进行判断
-                const potentialTokens = processedText.split(/(\s+)/);
-
-
-                const outputArray = potentialTokens.filter(Boolean).map(token => {
-                    if (token.match(/^\s+$/)) {
-                        return token;
-                    }
-
-                    // 核心判断：如果token是URL、图片、纯英文词或数字序列，则不进行内部标点转换
-                    if (isUrl(token) || isImageFormat(token) || isEnglishWord(token) || isNumericSequence(token)) {
-                        return token;
-                    }
-
-                    // 否则，对token进行逐字符的标点转换
-                    return token.split('').map((char, index, arr) => {
-                        if (char === '.' && index > 0 && /\d/.test(arr[index - 1]) && (index < arr.length - 1 && /\d/.test(arr[index + 1]))) {
-                            return '.';
-                        }
-                        char = handleQuotes(char);
-                        if (charMap[char]) {
-                            return charMap[char];
-                        }
-                        return char;
-                    }).join('');
-                });
-                outputTextElem.value = outputArray.join('');
-                return; // 确保只执行一次转换逻辑
-            }
-             // 如果循环结束还有剩余currentSegment，理论上不应发生，因为split会处理全部
-            if (currentSegment) {
-                 tokens.push(currentSegment); //以防万一
-            }
-
-            // 对上面tokens数组进行map处理 （如果采用上面的预分词策略）
-            // ...
-
-            // 如果不采用上面的预分词策略，恢复之前的逻辑：
+            
             const outputArrayFinal = processedText.split(/(\s+)/).filter(Boolean).map(token => {
-                 if (token.match(/^\s+$/)) {
+                 if (token.match(/^\s+$/)) { // 保留空白符
                     return token;
                 }
+                // 核心判断：如果token是URL、图片、纯英文词或数字序列，则不进行内部标点转换
                 if (isUrl(token) || isImageFormat(token) || isEnglishWord(token) || isNumericSequence(token)) {
                     return token;
                 }
+                // 否则，对token进行逐字符的标点转换
                 return token.split('').map((char, index, arr) => {
+                    // 保留数字内部的小数点 (例如 "1.2" 中的 '.')
+                    // 此条件仅在isNumericSequence未完整匹配但token内部有数字小数点结构时起作用
                     if (char === '.' && index > 0 && /\d/.test(arr[index - 1]) && (index < arr.length - 1 && /\d/.test(arr[index + 1]))) {
                         return '.';
                     }
-                    char = handleQuotes(char);
-                    if (charMap[char]) {
+                    char = handleQuotes(char); // 处理引号
+                    if (charMap[char]) { // 转换其他标点
                         return charMap[char];
                     }
-                    return char;
+                    return char; // 返回原字符
                 }).join('');
             });
             outputTextElem.value = outputArrayFinal.join('');
         }
-
 
         // --- 初始化 ---
         document.addEventListener('DOMContentLoaded', () => {
