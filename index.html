@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>中英文排版转换器 (Enhanced)</title>
+    <title>中英文排版转换器</title>
     <style>
-        /* Global Resets and Base Styles */
+        /* 全局重置和基础样式 */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -13,8 +13,8 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-            background-color: #f4f7f9; /* Light grayish-blue background */
+            font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background-color: #f0f2f5; /* 更柔和的背景色 */
             color: #333;
             line-height: 1.6;
             display: flex;
@@ -22,158 +22,166 @@
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            font-size: 16px; /* 基础字号 */
         }
 
         .main-container {
             background: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            padding: 30px 40px;
+            border-radius: 10px; /* 圆角调整 */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08); /* 调整阴影 */
+            padding: 35px 45px; /* 内边距调整 */
             width: 100%;
-            max-width: 1000px; /* Increased max-width for side-by-side layout */
+            max-width: 1100px; /* 容器最大宽度 */
             display: flex;
             flex-direction: column;
-            gap: 30px; /* Space between sections */
+            gap: 35px; /* 主要区域间距 */
         }
 
         header h1 {
             text-align: center;
-            color: #2c3e50; /* Darker shade for title */
-            font-size: 2rem; /* Larger title */
-            margin-bottom: 10px;
+            color: #1f2d3d; /* 标题颜色 */
+            font-size: 2.2rem; /* 标题字号 */
+            font-weight: 600; /* 标题字重 */
+            margin-bottom: 15px;
         }
 
-        /* Input and Output Text Areas Layout */
+        /* 编辑区域：左右分栏 */
         .editor-area {
             display: flex;
-            gap: 20px; /* Space between input and output columns */
+            gap: 25px; /* 输入输出框间距 */
             width: 100%;
         }
 
         .text-panel {
-            flex: 1; /* Each panel takes equal width */
+            flex: 1; /* 左右面板等宽 */
             display: flex;
             flex-direction: column;
         }
 
         .text-panel label {
-            font-weight: 600;
-            color: #34495e; /* Slightly muted label color */
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            font-weight: 500; /* 标签字重 */
+            color: #475669; /* 标签颜色 */
+            margin-bottom: 10px;
+            font-size: 0.95rem;
         }
 
         textarea {
             width: 100%;
-            height: 250px; /* Increased height */
-            padding: 15px;
-            border: 1px solid #dce4e8; /* Softer border color */
-            border-radius: 8px;
+            height: 300px; /* 文本框高度 */
+            padding: 18px; /* 文本框内边距 */
+            border: 1px solid #dcdfe6; /* 边框颜色 */
+            border-radius: 6px; /* 文本框圆角 */
             font-size: 1rem;
             outline: none;
-            resize: vertical; /* Allow vertical resize */
-            transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            background-color: #fdfdfd;
+            resize: vertical;
+            transition: border-color 0.25s ease, box-shadow 0.25s ease;
+            background-color: #fff;
+            color: #333;
+        }
+
+        textarea::placeholder {
+            color: #aab2bd; /* 占位符颜色 */
         }
 
         textarea:focus {
-            border-color: #3498db; /* Accent color on focus */
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+            border-color: #409eff; /* 焦点时边框颜色 */
+            box-shadow: 0 0 0 3px rgba(64, 158, 255, 0.1); /* 焦点时阴影 */
         }
 
         #outputText {
-            background-color: #f9f9f9; /* Slightly different bg for output */
+            background-color: #f7f8fa; /* 输出框背景色，略作区分 */
         }
 
-        /* Convert Button Styling */
+        /* 控制按钮区域 */
         .controls {
             text-align: center;
-            margin-top: 10px; /* Reduced margin as it's within the main container flow */
+            margin-top: 15px;
         }
 
         .convert-button {
-            padding: 12px 30px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            background: linear-gradient(90deg, #3498db, #2980b9); /* Blue gradient */
+            padding: 14px 35px; /* 按钮内边距 */
+            font-size: 1.15rem; /* 按钮字号 */
+            font-weight: 500;
+            background-color: #409eff; /* 主题蓝色 */
             color: #fff;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+            transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
         }
 
         .convert-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
-            background: linear-gradient(90deg, #2980b9, #3498db);
+            background-color: #66b1ff; /* 悬停颜色 */
+            box-shadow: 0 4px 12px rgba(64, 158, 255, 0.2);
         }
 
         .convert-button:active {
-            transform: translateY(0);
-            box-shadow: 0 3px 6px rgba(52, 152, 219, 0.2);
+            background-color: #3a8ee6; /* 点击颜色 */
+            transform: translateY(1px);
         }
 
-        /* Custom Rules Section */
+        /* 自定义规则区域 */
         .custom-rules-section {
-            margin-top: 20px;
-            padding: 20px;
-            background-color: #fbfcfe;
-            border: 1px solid #e9edf0;
+            margin-top: 25px;
+            padding: 25px;
+            background-color: #f9fafc; /* 区域背景色 */
+            border: 1px solid #e4e7ed;
             border-radius: 8px;
         }
 
         .custom-rules-section h2 {
             text-align: center;
-            color: #34495e;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+            color: #1f2d3d;
+            margin-bottom: 25px;
+            font-size: 1.6rem;
+            font-weight: 500;
         }
 
         .rule-input-form {
             display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 15px;
+            margin-bottom: 25px;
             align-items: center;
         }
 
         .rule-input-form input[type="text"] {
             flex-grow: 1;
-            padding: 10px;
-            border: 1px solid #dce4e8;
-            border-radius: 6px;
+            padding: 12px;
+            border: 1px solid #dcdfe6;
+            border-radius: 5px;
             font-size: 0.95rem;
         }
         
         .rule-input-form input[type="text"]:focus {
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+            border-color: #409eff;
+            box-shadow: 0 0 0 2px rgba(64, 158, 255, 0.08);
             outline: none;
         }
 
         .add-rule-button, .delete-rule-button {
-            padding: 10px 15px;
+            padding: 11px 18px;
             font-size: 0.9rem;
             color: #fff;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.2s ease;
+            flex-shrink: 0;
         }
 
         .add-rule-button {
-            background-color: #2ecc71; /* Green for add */
+            background-color: #67c23a; /* 绿色 */
         }
         .add-rule-button:hover {
-            background-color: #27ae60;
+            background-color: #85ce61;
         }
 
         .delete-rule-button {
-            background-color: #e74c3c; /* Red for delete */
-            margin-left: 10px;
+            background-color: #f56c6c; /* 红色 */
+            margin-left: 12px;
         }
         .delete-rule-button:hover {
-            background-color: #c0392b;
+            background-color: #f78989;
         }
 
         #rulesList {
@@ -183,34 +191,43 @@
 
         #rulesList li {
             background-color: #fff;
-            border: 1px solid #eef2f5;
-            padding: 10px 15px;
-            border-radius: 6px;
-            margin-bottom: 8px;
+            border: 1px solid #ebeef5;
+            padding: 12px 18px;
+            border-radius: 5px;
+            margin-bottom: 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.95rem;
+            font-size: 0.98rem;
+            transition: box-shadow 0.2s ease;
+        }
+        #rulesList li:hover {
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        #rulesList li .rule-content {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #5a5e66;
         }
         #rulesList li .rule-text {
-            color: #555;
+            font-family: 'Courier New', Courier, monospace; /* 等宽字体显示规则内容 */
         }
         #rulesList li .rule-arrow {
-            color: #3498db;
-            margin: 0 10px;
+            color: #409eff;
+            font-weight: bold;
         }
 
-
-        /* Footer Styling */
+        /* 页脚 */
         footer {
-            margin-top: 30px; /* Increased margin from main content */
+            margin-top: 35px;
             text-align: center;
             font-size: 0.9rem;
-            color: #7f8c8d; /* Softer footer text color */
+            color: #878d99;
         }
 
         footer a {
-            color: #3498db; /* Accent color for link */
+            color: #409eff;
             text-decoration: none;
             font-weight: 500;
         }
@@ -219,13 +236,14 @@
             text-decoration: underline;
         }
 
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
+        /* 响应式设计 */
+        @media (max-width: 800px) { /* 调整断点 */
             .main-container {
-                padding: 20px;
+                padding: 20px 25px;
             }
             .editor-area {
-                flex-direction: column; /* Stack text areas on smaller screens */
+                flex-direction: column;
+                gap: 20px;
             }
             .rule-input-form {
                 flex-direction: column;
@@ -238,36 +256,50 @@
                 width: 100%;
                 margin-top: 10px;
             }
+             #rulesList li {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .delete-rule-button {
+                margin-left: 0;
+                align-self: flex-end; /* 删除按钮靠右 */
+            }
+            header h1 {
+                font-size: 1.8rem;
+            }
+            .custom-rules-section h2 {
+                font-size: 1.4rem;
+            }
         }
-
     </style>
 </head>
 <body>
     <div class="main-container">
         <header>
-            <h1>中英文排版转换</h1>
+            <h1>中英文智能排版转换</h1>
         </header>
 
         <div class="editor-area">
             <div class="text-panel">
                 <label for="inputText">输入文本 (Input Text):</label>
-                <textarea id="inputText" placeholder="在此输入需要转换的文本... 例如：Hello world, this is a test. 'Open quotes' and "double quotes" will be converted. Also, check http://example.com and ![[@meta/pictures/image.png]]. Test...ellipsis. 1.2.3. Go!"></textarea>
+                <textarea id="inputText" placeholder="在此输入需要转换的文本……"></textarea>
             </div>
             <div class="text-panel">
                 <label for="outputText">转换后文本 (Converted Text):</label>
-                <textarea id="outputText" readonly placeholder="转换后的文本将显示在这里..."></textarea>
+                <textarea id="outputText" readonly placeholder="转换后的文本将显示在这里……"></textarea>
             </div>
         </div>
 
         <div class="controls">
-            <button class="convert-button" onclick="convertText()">转换 (Convert)</button>
+            <button class="convert-button" onclick="convertText()">一键转换 (Convert)</button>
         </div>
 
         <div class="custom-rules-section">
             <h2>自定义转换规则</h2>
             <div class="rule-input-form">
-                <input type="text" id="originalWord" placeholder="原文 (e.g., apple)">
-                <input type="text" id="replacementWord" placeholder="替换为 (e.g., 苹果)">
+                <input type="text" id="originalWord" placeholder="原文 (例如: AI)">
+                <input type="text" id="replacementWord" placeholder="替换为 (例如: 人工智能)">
                 <button class="add-rule-button" onclick="addCustomRule()">添加规则</button>
             </div>
             <ul id="rulesList">
@@ -275,61 +307,64 @@
         </div>
 
         <footer>
-            <p>由 <a href="https://okjk.co/r46EiO" target="_blank" rel="noopener noreferrer">胡九思</a> 提供技术支持 </p>
+            <p>由 <a href="https://okjk.co/r46EiO" target="_blank" rel="noopener noreferrer">胡九思</a> 提供技术支持</p>
         </footer>
     </div>
 
     <script>
-        // --- Configuration for Punctuation Mapping ---
+        // --- 标点符号映射表 ---
         const charMap = {
             ',': '，', '.': '。', '!': '！', '?': '？', ':': '：', ';': '；',
             '\'': '’', '(': '（', ')': '）', '[': '【', ']': '】', '{': '｛', '}': '｝'
-            // Note: Double quotes are handled separately by `handleQuotes`
+            // 注意: 双引号由 `handleQuotes` 函数专门处理
         };
 
-        // --- State Variables ---
-        let isOpenQuote = false; // Tracks the state of double quotes for proper pairing
-        let customRules = [];   // Array to store user-defined conversion rules
+        // --- 全局状态变量 ---
+        let isOpenQuote = false; // 追踪双引号状态，确保正确配对 “ ”
+        let customRules = [];   // 存储用户自定义的转换规则: [{original: "...", replacement: "..."}, ...]
 
-        // --- DOM Elements ---
+        // --- DOM 元素引用 ---
+        // 缓存常用的DOM元素，提高性能
         const inputTextElem = document.getElementById("inputText");
         const outputTextElem = document.getElementById("outputText");
         const originalWordInput = document.getElementById("originalWord");
         const replacementWordInput = document.getElementById("replacementWord");
         const rulesListElem = document.getElementById("rulesList");
 
-        // --- Utility Functions for Text Processing ---
+        // --- 核心文本处理工具函数 ---
 
         /**
-         * Handles the conversion of standard double quotes to Chinese typographical quotes.
-         * Toggles between opening and closing quotes.
-         * @param {string} char - The character to process.
-         * @returns {string} The converted quote or the original character.
+         * 处理标准双引号到中文印刷引号的转换。
+         * 根据 `isOpenQuote` 状态在开引号和闭引号间切换。
+         * @param {string} char - 当前处理的字符。
+         * @returns {string} 转换后的中文引号或原字符。
          */
         function handleQuotes(char) {
             if (char === '"') {
-                const converted = isOpenQuote ? '”' : '“';
-                isOpenQuote = !isOpenQuote;
+                const converted = isOpenQuote ? '”' : '“'; // 若引号已打开，则使用闭引号；否则使用开引号。
+                isOpenQuote = !isOpenQuote; // 切换引号状态。
                 return converted;
             }
-            return char;
+            return char; // 如果不是双引号，返回原字符。
         }
 
         /**
-         * Checks if a given text string is a URL.
-         * @param {string} text - The text to check.
-         * @returns {boolean} True if the text is a URL, false otherwise.
+         * 检查给定字符串是否为URL。
+         * 此函数对于防止转换URL内部的标点符号至关重要。
+         * @param {string} text - 需要检查的字符串。
+         * @returns {boolean} 如果字符串匹配URL模式，则为true，否则为false。
          */
         function isUrl(text) {
-            // A more robust URL pattern
-            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+            // 一个更健壮的URL识别正则表达式，能识别多种常见URL格式。
+            const urlPattern = /^(?:(?:https?|ftp):\/\/)(?:\S+(?::\S*)?@)?(?:(?!(?:10|127)(?:\.\d{1,3}){3})(?!(?:169\.254|192\.168)(?:\.\d{1,3}){2})(?!172\.(?:1[6-9]|2\d|3[0-1])(?:\.\d{1,3}){2})(?:[1-9]\d?|1\d\d|2[01]\d|22[0-3])(?:\.(?:1?\d{1,2}|2[0-4]\d|25[0-5])){2}(?:\.(?:[1-9]\d?|1\d\d|2[0-4]\d|25[0-4]))|(?:(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)(?:\.(?:[a-z\u00a1-\uffff0-9]-*)*[a-z\u00a1-\uffff0-9]+)*(?:\.(?:[a-z\u00a1-\uffff]{2,}))\.?)(?::\d{2,5})?(?:[/?#]\S*)?$/i;
             return urlPattern.test(text);
         }
 
         /**
-         * Checks if a given text string matches a specific image format placeholder.
-         * @param {string} text - The text to check.
-         * @returns {boolean} True if it matches the image format, false otherwise.
+         * 检查给定字符串是否匹配特定的图片格式占位符。
+         * 例如: ![[@meta/pictures/image.png]]
+         * @param {string} text - 需要检查的字符串。
+         * @returns {boolean} 如果匹配图片占位符模式，则为true。
          */
         function isImageFormat(text) {
             const imagePattern = /!\[\[@meta\/pictures\/[^\]]+\]\]/g;
@@ -337,9 +372,9 @@
         }
 
         /**
-         * Checks if a given text string consists only of English letters.
-         * @param {string} text - The text to check.
-         * @returns {boolean} True if it's a pure English word, false otherwise.
+         * 检查给定字符串是否仅由英文字母组成。
+         * @param {string} text - 需要检查的字符串。
+         * @returns {boolean} 如果字符串是纯英文单词，则为true。
          */
         function isEnglishWord(text) {
             const wordPattern = /^[a-zA-Z]+$/;
@@ -347,97 +382,107 @@
         }
 
         /**
-         * Checks if a given text string is a numeric sequence, possibly with decimals or an ending letter.
-         * @param {string} text - The text to check.
-         * @returns {boolean} True if it's a numeric sequence, false otherwise.
+         * 检查给定字符串是否为数字序列或常见的字母数字序列 (如 "Fig1.2a" 或 "1.2.3")。
+         * 这有助于保留技术编号、版本号或图表引用中的格式。
+         * @param {string} text - 需要检查的字符串。
+         * @returns {boolean} 如果字符串匹配数字/字母数字序列模式，则为true。
          */
         function isNumericSequence(text) {
-            // Allows numbers like 123, 1.2.3, 1.2a, fig1
-             const numericPattern = /^[a-zA-Z]*\d+(\.\d+)*([a-zA-Z]?)$/;
-            if (/^\d+$/.test(text)) return true; // Pure integer
-            return numericPattern.test(text) && /[0-9]/.test(text); // Contains a digit
+            // 此正则表达式用于匹配如 "123", "1.2", "1.2.3", "Fig1", "Table2.1a", "v3.0" 等序列。
+            // 它寻找可能包含数字、点以及可选的前导/尾随字母的模式。
+            const numericPattern = /^(?:[a-zA-Z]+[0-9]|[0-9]+[a-zA-Z]|[a-zA-Z]*[0-9]+(?:[.][0-9]+)*[a-zA-Z]*|[0-9]+(?:[.][0-9]+)*[a-zA-Z]*)$/;
+            // 确保它至少包含一个数字，以区别于纯字母单词。
+            return numericPattern.test(text) && /\d/.test(text);
         }
 
+
         /**
-         * Converts sequences of two or more periods into the Chinese ellipsis symbol.
-         * @param {string} text - The text to process.
-         * @returns {string} The text with ellipses converted.
+         * 将连续两个或多个句点 (例如 "..." 或 "..") 转换成中文省略号 (……)。
+         * @param {string} text - 输入文本。
+         * @returns {string} 转换省略号后的文本。
          */
         function convertEllipsis(text) {
             return text.replace(/\.{2,}/g, '……');
         }
 
-        // --- Custom Rules Management ---
+        // --- 自定义转换规则管理 ---
 
         /**
-         * Loads custom rules from localStorage and populates the `customRules` array.
-         * Also updates the displayed list of rules.
+         * 从浏览器的 localStorage 加载自定义转换规则。
+         * 如果存在规则，则填充 `customRules` 数组并显示它们。
          */
         function loadCustomRules() {
-            const storedRules = localStorage.getItem('customConversionRules');
+            const storedRules = localStorage.getItem('customConversionRules_v3'); // 使用版本化的键名以避免冲突
             if (storedRules) {
                 customRules = JSON.parse(storedRules);
             }
-            displayCustomRules();
+            displayCustomRules(); // 使用加载的规则更新UI。
         }
 
         /**
-         * Saves the current `customRules` array to localStorage.
+         * 将当前的 `customRules` 数组保存到 localStorage，实现持久化。
          */
         function saveCustomRules() {
-            localStorage.setItem('customConversionRules', JSON.stringify(customRules));
+            localStorage.setItem('customConversionRules_v3', JSON.stringify(customRules));
         }
 
         /**
-         * Adds a new custom rule from the input fields to the `customRules` array,
-         * saves them, and updates the display.
+         * 根据用户在表单中的输入添加新的自定义规则。
+         * 规则被添加到 `customRules`，保存到 localStorage，并更新UI显示。
          */
         function addCustomRule() {
             const original = originalWordInput.value.trim();
             const replacement = replacementWordInput.value.trim();
 
-            if (original && replacement) {
-                // Avoid adding duplicate rules
+            if (original && replacement) { // 确保原文和替换内容都不为空。
+                // 防止添加重复的规则 (基于原文判断)。
                 if (!customRules.some(rule => rule.original === original)) {
                     customRules.push({ original, replacement });
-                    saveCustomRules();
-                    displayCustomRules();
-                    originalWordInput.value = ''; // Clear input fields
+                    saveCustomRules();      // 保存到 localStorage。
+                    displayCustomRules();   // 刷新UI中的列表。
+                    originalWordInput.value = ''; // 添加后清空输入框。
                     replacementWordInput.value = '';
                 } else {
-                    alert('该原文规则已存在！(This original rule already exists!)');
+                    alert('该原文的自定义规则已存在！');
                 }
             } else {
-                alert('原文和替换内容均不能为空！(Original and replacement cannot be empty!)');
+                alert('“原文”和“替换为”的内容均不能为空！');
             }
         }
 
         /**
-         * Deletes a custom rule at a given index from the `customRules` array,
-         * saves the changes, and updates the display.
-         * @param {number} index - The index of the rule to delete.
+         * 从 `customRules` 数组中删除指定索引的自定义规则。
+         * 更改将保存到 localStorage，并更新UI。
+         * @param {number} index - 要删除规则的索引。
          */
         function deleteCustomRule(index) {
-            customRules.splice(index, 1);
-            saveCustomRules();
-            displayCustomRules();
+            customRules.splice(index, 1); // 从数组中移除规则。
+            saveCustomRules();        // 更新 localStorage。
+            displayCustomRules();     // 刷新UI中的列表。
         }
 
         /**
-         * Renders the current list of custom rules in the UI.
+         * 在HTML中渲染当前定义的自定义规则列表。
+         * 每个规则都带有一个删除按钮。
          */
         function displayCustomRules() {
-            rulesListElem.innerHTML = ''; // Clear existing list
+            rulesListElem.innerHTML = ''; // 清空显示区域中任何现有的规则。
             if (customRules.length === 0) {
-                rulesListElem.innerHTML = '<li>暂无自定义规则 (No custom rules yet)</li>';
+                const placeholderItem = document.createElement('li');
+                placeholderItem.textContent = '暂无自定义规则';
+                placeholderItem.style.textAlign = 'center';
+                placeholderItem.style.color = '#878d99';
+                rulesListElem.appendChild(placeholderItem);
                 return;
             }
             customRules.forEach((rule, index) => {
                 const listItem = document.createElement('li');
                 listItem.innerHTML = `
-                    <span class="rule-text">"${rule.original}"</span>
-                    <span class="rule-arrow">→</span>
-                    <span class="rule-text">"${rule.replacement}"</span>
+                    <div class="rule-content">
+                        <span class="rule-text">"${rule.original}"</span>
+                        <span class="rule-arrow">→</span>
+                        <span class="rule-text">"${rule.replacement}"</span>
+                    </div>
                     <button class="delete-rule-button" onclick="deleteCustomRule(${index})">删除</button>
                 `;
                 rulesListElem.appendChild(listItem);
@@ -445,91 +490,91 @@
         }
 
         /**
-         * Applies all defined custom rules to the input text.
-         * Rules are applied sequentially. For overlapping rules, consider rule order or longest match if needed.
-         * Current implementation is a simple sequential replacement.
-         * @param {string} text - The input text.
-         * @returns {string} Text with custom rules applied.
+         * 将所有已定义的自定义规则应用于输入文本。
+         * 规则按“原文”长度降序排序，以确保更长、更具体的规则优先应用
+         * (例如，“New York” 应在 “New” 之前被替换)。
+         * @param {string} text - 需要处理的输入文本。
+         * @returns {string} 应用所有自定义规则后的文本。
          */
         function applyCustomRules(text) {
             let processedText = text;
-            // Sort rules by length of 'original' descending to handle substrings correctly
-            // e.g. "test case" should be replaced before "test"
+            // 按“原文”长度降序对规则进行排序，以处理一个规则是另一个规则子串的情况。
             const sortedRules = [...customRules].sort((a, b) => b.original.length - a.original.length);
 
             sortedRules.forEach(rule => {
-                // Use a RegExp for global replacement, escaping special characters in rule.original
+                // 为在RegExp中使用，需转义“原文”中的特殊字符。
                 const escapedOriginal = rule.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                // 全局替换所有匹配项。
                 processedText = processedText.replace(new RegExp(escapedOriginal, 'g'), rule.replacement);
             });
             return processedText;
         }
 
-
-        // --- Main Conversion Function ---
+        // --- 主要文本转换函数 ---
 
         /**
-         * Converts the input text according to defined rules (custom and standard punctuation).
+         * 协调整个文本转换过程。
+         * 1. 应用自定义规则。
+         * 2. 转换省略号。
+         * 3. 对文本进行分词，并应用标准标点符号规则，同时尊重URL等特殊格式。
          */
         function convertText() {
             let inputText = inputTextElem.value;
-            isOpenQuote = false; // Reset quote state for each conversion
+            isOpenQuote = false; // 重要: 每次转换调用时重置引号状态。
 
-            // 1. Apply custom conversion rules first
+            // 步骤 1: 应用用户定义的自定义转换规则。
             let processedText = applyCustomRules(inputText);
 
-            // 2. Convert ellipses (e.g., "..." to "……")
+            // 步骤 2: 转换标准省略号 (例如 "..." 到 "……")。
             processedText = convertEllipsis(processedText);
 
-            // 3. Tokenize and process punctuation for remaining text
-            //    Splitting by `(\s+)` preserves spaces as tokens.
-            const output = processedText.split(/(\s+)/).map(token => {
-                if (token.match(/^\s+$/)) { // If the token is only whitespace, keep it
+            // 步骤 3: 对文本进行分词并应用标准标点符号映射。
+            // 通过 `(\s+)` 分割可以捕获空白标记，从而保留间距。
+            const outputArray = processedText.split(/(\s+|(?<=[^\s\w])|(?=[^\s\w]))/).filter(Boolean).map(token => {
+            // .split(/(\s+)/) 更改为更细致的分词，尝试保留标点与词语的连接性，同时将标点也作为token
+            // .filter(Boolean) 移除可能产生的空字符串token
+
+                if (token.match(/^\s+$/)) { // 如果标记纯粹是空白，则按原样返回。
                     return token;
                 }
-                // If token is a URL, specific image format, a purely English word, or a numeric sequence,
-                // do not apply character-by-character punctuation conversion to it.
+
+                // 关键: 保留URL、图片格式、英文单词和数字序列。
+                // 这些标记不应进行逐字符的标点符号转换。
                 if (isUrl(token) || isImageFormat(token) || isEnglishWord(token) || isNumericSequence(token)) {
                     return token;
                 }
 
-                // Otherwise, process character by character for punctuation
+                // 对于其他标记，逐字符处理以进行标点符号转换。
                 return token.split('').map((char, index, arr) => {
-                    // Handle decimal points within numbers (e.g., "1.23" should not become "1。23")
-                    // This check is more fine-grained if a token isn't fully caught by isNumericSequence
+                    // 针对可能未被 isNumericSequence 捕获的数字中的小数点的特定检查。
+                    // 例如，如果一个标记是 "word1.2"，isNumericSequence 可能为false。
+                    // 这确保了此类标记中的 "1.2" 仍会尝试保留其小数点。
                     if (char === '.' && index > 0 && /\d/.test(arr[index - 1]) && (index < arr.length - 1 && /\d/.test(arr[index + 1]))) {
-                        return '.'; // Keep decimal point if surrounded by digits
-                    }
-                     if (char === '.' && index > 0 && /\d/.test(arr[index - 1]) && index === arr.length -1 && token.length > 1) {
-                        // Handles cases like "Fig." or "No." where the token might be "Fig."
-                        // if not already an English word or numeric sequence. This can be tricky.
-                        // For simplicity, if isEnglishWord/isNumericSequence don't catch it, it will be converted.
-                        // The current logic is to convert trailing dots unless part of specific patterns.
+                        return '.'; // 如果小数点在标记内部且两边都是数字，则保留。
                     }
 
-
-                    // Handle standard double quotes to Chinese quotes
+                    // 处理标准双引号到中文印刷引号的转换。
                     char = handleQuotes(char);
 
-                    // Map other punctuation characters
+                    // 应用 `charMap` 中的映射 (例如 ',' 到 '，')。
                     if (charMap[char]) {
                         return charMap[char];
                     }
 
-                    return char; // Return original character if no mapping applies
+                    return char; // 如果没有规则适用，则返回原字符。
                 }).join('');
-            }).join('');
+            });
 
-            outputTextElem.value = output;
+            outputTextElem.value = outputArray.join(''); // 将所有处理过的标记重新组合成单个字符串。
         }
 
-        // --- Initialization ---
+        // --- 初始化 ---
         /**
-         * Initializes the application when the DOM is fully loaded.
-         * Loads custom rules from localStorage.
+         * 当HTML文档完全加载并解析完毕后，此函数将运行。
+         * 它会加载存储在localStorage中的任何自定义规则。
          */
         document.addEventListener('DOMContentLoaded', () => {
-            loadCustomRules();
+            loadCustomRules(); // 页面加载时加载并显示自定义规则。
         });
 
     </script>
