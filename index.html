@@ -1,49 +1,537 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文本转换工具</title>
-    <link rel="stylesheet" href="style.css">
+    <title>中英文排版转换器 (Enhanced)</title>
+    <style>
+        /* Global Resets and Base Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+            background-color: #f4f7f9; /* Light grayish-blue background */
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-container {
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px 40px;
+            width: 100%;
+            max-width: 1000px; /* Increased max-width for side-by-side layout */
+            display: flex;
+            flex-direction: column;
+            gap: 30px; /* Space between sections */
+        }
+
+        header h1 {
+            text-align: center;
+            color: #2c3e50; /* Darker shade for title */
+            font-size: 2rem; /* Larger title */
+            margin-bottom: 10px;
+        }
+
+        /* Input and Output Text Areas Layout */
+        .editor-area {
+            display: flex;
+            gap: 20px; /* Space between input and output columns */
+            width: 100%;
+        }
+
+        .text-panel {
+            flex: 1; /* Each panel takes equal width */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .text-panel label {
+            font-weight: 600;
+            color: #34495e; /* Slightly muted label color */
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px; /* Increased height */
+            padding: 15px;
+            border: 1px solid #dce4e8; /* Softer border color */
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            resize: vertical; /* Allow vertical resize */
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fdfdfd;
+        }
+
+        textarea:focus {
+            border-color: #3498db; /* Accent color on focus */
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+        }
+
+        #outputText {
+            background-color: #f9f9f9; /* Slightly different bg for output */
+        }
+
+        /* Convert Button Styling */
+        .controls {
+            text-align: center;
+            margin-top: 10px; /* Reduced margin as it's within the main container flow */
+        }
+
+        .convert-button {
+            padding: 12px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #3498db, #2980b9); /* Blue gradient */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s ease;
+        }
+
+        .convert-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(52, 152, 219, 0.3);
+            background: linear-gradient(90deg, #2980b9, #3498db);
+        }
+
+        .convert-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 6px rgba(52, 152, 219, 0.2);
+        }
+
+        /* Custom Rules Section */
+        .custom-rules-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #fbfcfe;
+            border: 1px solid #e9edf0;
+            border-radius: 8px;
+        }
+
+        .custom-rules-section h2 {
+            text-align: center;
+            color: #34495e;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .rule-input-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .rule-input-form input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #dce4e8;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        
+        .rule-input-form input[type="text"]:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.1);
+            outline: none;
+        }
+
+        .add-rule-button, .delete-rule-button {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        .add-rule-button {
+            background-color: #2ecc71; /* Green for add */
+        }
+        .add-rule-button:hover {
+            background-color: #27ae60;
+        }
+
+        .delete-rule-button {
+            background-color: #e74c3c; /* Red for delete */
+            margin-left: 10px;
+        }
+        .delete-rule-button:hover {
+            background-color: #c0392b;
+        }
+
+        #rulesList {
+            list-style: none;
+            padding: 0;
+        }
+
+        #rulesList li {
+            background-color: #fff;
+            border: 1px solid #eef2f5;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+        }
+        #rulesList li .rule-text {
+            color: #555;
+        }
+        #rulesList li .rule-arrow {
+            color: #3498db;
+            margin: 0 10px;
+        }
+
+
+        /* Footer Styling */
+        footer {
+            margin-top: 30px; /* Increased margin from main content */
+            text-align: center;
+            font-size: 0.9rem;
+            color: #7f8c8d; /* Softer footer text color */
+        }
+
+        footer a {
+            color: #3498db; /* Accent color for link */
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 20px;
+            }
+            .editor-area {
+                flex-direction: column; /* Stack text areas on smaller screens */
+            }
+            .rule-input-form {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .rule-input-form input[type="text"] {
+                width: 100%;
+            }
+            .add-rule-button {
+                width: 100%;
+                margin-top: 10px;
+            }
+        }
+
+    </style>
 </head>
 <body>
-    <div class="app-container">
+    <div class="main-container">
         <header>
-            <h1>文本转换工具</h1>
+            <h1>中英文排版转换</h1>
         </header>
 
-        <main>
-            <section class="conversion-section">
-                <h2>文本转换</h2>
-                <div class="conversion-container">
-                    <textarea id="inputText" placeholder="在此输入待转换的文本..."></textarea>
-                    <textarea id="outputText" placeholder="转换后的文本将显示在此..." readonly></textarea>
-                </div>
-                <button id="convertButton">开始转换</button>
-            </section>
+        <div class="editor-area">
+            <div class="text-panel">
+                <label for="inputText">输入文本 (Input Text):</label>
+                <textarea id="inputText" placeholder="在此输入需要转换的文本... 例如：Hello world, this is a test. 'Open quotes' and "double quotes" will be converted. Also, check http://example.com and ![[@meta/pictures/image.png]]. Test...ellipsis. 1.2.3. Go!"></textarea>
+            </div>
+            <div class="text-panel">
+                <label for="outputText">转换后文本 (Converted Text):</label>
+                <textarea id="outputText" readonly placeholder="转换后的文本将显示在这里..."></textarea>
+            </div>
+        </div>
 
-            <section id="customRulesSection" class="rules-section">
-                <h2>自定义转换规则</h2>
-                <div class="rule-input-group">
-                    <input type="text" id="findInput" placeholder="查找的词汇">
-                    <span>➔</span>
-                    <input type="text" id="replaceInput" placeholder="替换为的词汇">
-                    <button id="addRuleButton">添加规则</button>
-                </div>
-                <div class="rules-list-wrapper">
-                    <h3>当前规则 (点击规则可删除)</h3>
-                    <ul id="rulesListContainer">
-                        </ul>
-                    <p id="noRulesMessage" class="empty-message">暂无自定义规则。</p>
-                </div>
-            </section>
-        </main>
+        <div class="controls">
+            <button class="convert-button" onclick="convertText()">转换 (Convert)</button>
+        </div>
+
+        <div class="custom-rules-section">
+            <h2>自定义转换规则</h2>
+            <div class="rule-input-form">
+                <input type="text" id="originalWord" placeholder="原文 (e.g., apple)">
+                <input type="text" id="replacementWord" placeholder="替换为 (e.g., 苹果)">
+                <button class="add-rule-button" onclick="addCustomRule()">添加规则</button>
+            </div>
+            <ul id="rulesList">
+                </ul>
+        </div>
 
         <footer>
-            <p>&copy; 2024 文本转换工具</p>
+            <p>由 <a href="https://okjk.co/r46EiO" target="_blank" rel="noopener noreferrer">胡九思</a> 提供技术支持 (样式与功能增强版)</p>
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        // --- Configuration for Punctuation Mapping ---
+        const charMap = {
+            ',': '，', '.': '。', '!': '！', '?': '？', ':': '：', ';': '；',
+            '\'': '’', '(': '（', ')': '）', '[': '【', ']': '】', '{': '｛', '}': '｝'
+            // Note: Double quotes are handled separately by `handleQuotes`
+        };
+
+        // --- State Variables ---
+        let isOpenQuote = false; // Tracks the state of double quotes for proper pairing
+        let customRules = [];   // Array to store user-defined conversion rules
+
+        // --- DOM Elements ---
+        const inputTextElem = document.getElementById("inputText");
+        const outputTextElem = document.getElementById("outputText");
+        const originalWordInput = document.getElementById("originalWord");
+        const replacementWordInput = document.getElementById("replacementWord");
+        const rulesListElem = document.getElementById("rulesList");
+
+        // --- Utility Functions for Text Processing ---
+
+        /**
+         * Handles the conversion of standard double quotes to Chinese typographical quotes.
+         * Toggles between opening and closing quotes.
+         * @param {string} char - The character to process.
+         * @returns {string} The converted quote or the original character.
+         */
+        function handleQuotes(char) {
+            if (char === '"') {
+                const converted = isOpenQuote ? '”' : '“';
+                isOpenQuote = !isOpenQuote;
+                return converted;
+            }
+            return char;
+        }
+
+        /**
+         * Checks if a given text string is a URL.
+         * @param {string} text - The text to check.
+         * @returns {boolean} True if the text is a URL, false otherwise.
+         */
+        function isUrl(text) {
+            // A more robust URL pattern
+            const urlPattern = /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+            return urlPattern.test(text);
+        }
+
+        /**
+         * Checks if a given text string matches a specific image format placeholder.
+         * @param {string} text - The text to check.
+         * @returns {boolean} True if it matches the image format, false otherwise.
+         */
+        function isImageFormat(text) {
+            const imagePattern = /!\[\[@meta\/pictures\/[^\]]+\]\]/g;
+            return imagePattern.test(text);
+        }
+
+        /**
+         * Checks if a given text string consists only of English letters.
+         * @param {string} text - The text to check.
+         * @returns {boolean} True if it's a pure English word, false otherwise.
+         */
+        function isEnglishWord(text) {
+            const wordPattern = /^[a-zA-Z]+$/;
+            return wordPattern.test(text);
+        }
+
+        /**
+         * Checks if a given text string is a numeric sequence, possibly with decimals or an ending letter.
+         * @param {string} text - The text to check.
+         * @returns {boolean} True if it's a numeric sequence, false otherwise.
+         */
+        function isNumericSequence(text) {
+            // Allows numbers like 123, 1.2.3, 1.2a, fig1
+             const numericPattern = /^[a-zA-Z]*\d+(\.\d+)*([a-zA-Z]?)$/;
+            if (/^\d+$/.test(text)) return true; // Pure integer
+            return numericPattern.test(text) && /[0-9]/.test(text); // Contains a digit
+        }
+
+        /**
+         * Converts sequences of two or more periods into the Chinese ellipsis symbol.
+         * @param {string} text - The text to process.
+         * @returns {string} The text with ellipses converted.
+         */
+        function convertEllipsis(text) {
+            return text.replace(/\.{2,}/g, '……');
+        }
+
+        // --- Custom Rules Management ---
+
+        /**
+         * Loads custom rules from localStorage and populates the `customRules` array.
+         * Also updates the displayed list of rules.
+         */
+        function loadCustomRules() {
+            const storedRules = localStorage.getItem('customConversionRules');
+            if (storedRules) {
+                customRules = JSON.parse(storedRules);
+            }
+            displayCustomRules();
+        }
+
+        /**
+         * Saves the current `customRules` array to localStorage.
+         */
+        function saveCustomRules() {
+            localStorage.setItem('customConversionRules', JSON.stringify(customRules));
+        }
+
+        /**
+         * Adds a new custom rule from the input fields to the `customRules` array,
+         * saves them, and updates the display.
+         */
+        function addCustomRule() {
+            const original = originalWordInput.value.trim();
+            const replacement = replacementWordInput.value.trim();
+
+            if (original && replacement) {
+                // Avoid adding duplicate rules
+                if (!customRules.some(rule => rule.original === original)) {
+                    customRules.push({ original, replacement });
+                    saveCustomRules();
+                    displayCustomRules();
+                    originalWordInput.value = ''; // Clear input fields
+                    replacementWordInput.value = '';
+                } else {
+                    alert('该原文规则已存在！(This original rule already exists!)');
+                }
+            } else {
+                alert('原文和替换内容均不能为空！(Original and replacement cannot be empty!)');
+            }
+        }
+
+        /**
+         * Deletes a custom rule at a given index from the `customRules` array,
+         * saves the changes, and updates the display.
+         * @param {number} index - The index of the rule to delete.
+         */
+        function deleteCustomRule(index) {
+            customRules.splice(index, 1);
+            saveCustomRules();
+            displayCustomRules();
+        }
+
+        /**
+         * Renders the current list of custom rules in the UI.
+         */
+        function displayCustomRules() {
+            rulesListElem.innerHTML = ''; // Clear existing list
+            if (customRules.length === 0) {
+                rulesListElem.innerHTML = '<li>暂无自定义规则 (No custom rules yet)</li>';
+                return;
+            }
+            customRules.forEach((rule, index) => {
+                const listItem = document.createElement('li');
+                listItem.innerHTML = `
+                    <span class="rule-text">"${rule.original}"</span>
+                    <span class="rule-arrow">→</span>
+                    <span class="rule-text">"${rule.replacement}"</span>
+                    <button class="delete-rule-button" onclick="deleteCustomRule(${index})">删除</button>
+                `;
+                rulesListElem.appendChild(listItem);
+            });
+        }
+
+        /**
+         * Applies all defined custom rules to the input text.
+         * Rules are applied sequentially. For overlapping rules, consider rule order or longest match if needed.
+         * Current implementation is a simple sequential replacement.
+         * @param {string} text - The input text.
+         * @returns {string} Text with custom rules applied.
+         */
+        function applyCustomRules(text) {
+            let processedText = text;
+            // Sort rules by length of 'original' descending to handle substrings correctly
+            // e.g. "test case" should be replaced before "test"
+            const sortedRules = [...customRules].sort((a, b) => b.original.length - a.original.length);
+
+            sortedRules.forEach(rule => {
+                // Use a RegExp for global replacement, escaping special characters in rule.original
+                const escapedOriginal = rule.original.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                processedText = processedText.replace(new RegExp(escapedOriginal, 'g'), rule.replacement);
+            });
+            return processedText;
+        }
+
+
+        // --- Main Conversion Function ---
+
+        /**
+         * Converts the input text according to defined rules (custom and standard punctuation).
+         */
+        function convertText() {
+            let inputText = inputTextElem.value;
+            isOpenQuote = false; // Reset quote state for each conversion
+
+            // 1. Apply custom conversion rules first
+            let processedText = applyCustomRules(inputText);
+
+            // 2. Convert ellipses (e.g., "..." to "……")
+            processedText = convertEllipsis(processedText);
+
+            // 3. Tokenize and process punctuation for remaining text
+            //    Splitting by `(\s+)` preserves spaces as tokens.
+            const output = processedText.split(/(\s+)/).map(token => {
+                if (token.match(/^\s+$/)) { // If the token is only whitespace, keep it
+                    return token;
+                }
+                // If token is a URL, specific image format, a purely English word, or a numeric sequence,
+                // do not apply character-by-character punctuation conversion to it.
+                if (isUrl(token) || isImageFormat(token) || isEnglishWord(token) || isNumericSequence(token)) {
+                    return token;
+                }
+
+                // Otherwise, process character by character for punctuation
+                return token.split('').map((char, index, arr) => {
+                    // Handle decimal points within numbers (e.g., "1.23" should not become "1。23")
+                    // This check is more fine-grained if a token isn't fully caught by isNumericSequence
+                    if (char === '.' && index > 0 && /\d/.test(arr[index - 1]) && (index < arr.length - 1 && /\d/.test(arr[index + 1]))) {
+                        return '.'; // Keep decimal point if surrounded by digits
+                    }
+                     if (char === '.' && index > 0 && /\d/.test(arr[index - 1]) && index === arr.length -1 && token.length > 1) {
+                        // Handles cases like "Fig." or "No." where the token might be "Fig."
+                        // if not already an English word or numeric sequence. This can be tricky.
+                        // For simplicity, if isEnglishWord/isNumericSequence don't catch it, it will be converted.
+                        // The current logic is to convert trailing dots unless part of specific patterns.
+                    }
+
+
+                    // Handle standard double quotes to Chinese quotes
+                    char = handleQuotes(char);
+
+                    // Map other punctuation characters
+                    if (charMap[char]) {
+                        return charMap[char];
+                    }
+
+                    return char; // Return original character if no mapping applies
+                }).join('');
+            }).join('');
+
+            outputTextElem.value = output;
+        }
+
+        // --- Initialization ---
+        /**
+         * Initializes the application when the DOM is fully loaded.
+         * Loads custom rules from localStorage.
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            loadCustomRules();
+        });
+
+    </script>
 </body>
 </html>
