@@ -114,7 +114,7 @@
             <textarea id="outputText" readonly placeholder="转换后的文本..."></textarea>
         </div>
         <footer>
-            <p>由 <a href="https://okjk.co/r46EiO" target="_blank" rel="noopener noreferrer">卫清遥</a> 提供技术支持</p>
+            <p>由 <a href="https://okjk.co/r46EiO" target="_blank" rel="noopener noreferrer">胡九思</a> 提供技术支持</p>
         </footer>
     </div>
 
@@ -123,9 +123,9 @@
             ',': '，', '.': '。', '!': '！', '?': '？', ':': '：', ';': '；',
             '\'': '’', '(': '（', ')': '）', '[': '【', ']': '】', '{': '｛', '}': '｝'
         };
-
+    
         let isOpenQuote = false;
-
+    
         function handleQuotes(char) {
             if (char === '"') {
                 const converted = isOpenQuote ? '”' : '“';
@@ -134,55 +134,60 @@
             }
             return char;
         }
-
+    
         function isUrl(text) {
             const urlPattern = /https?:\/\/[^\s]+/g;
             return urlPattern.test(text);
         }
-
+    
+        function isImageFormat(text) {
+            const imagePattern = /!\[\[@meta\/pictures\/[^\]]+\]\]/g;
+            return imagePattern.test(text);
+        }
+    
         function isEnglishWord(text) {
             const wordPattern = /^[a-zA-Z]+$/;
             return wordPattern.test(text);
         }
-
+    
         function isNumericSequence(text) {
             const numericPattern = /^\d+(\.\d+)*([a-zA-Z]?)$/;
             return numericPattern.test(text);
         }
-
+    
         function convertEllipsis(text) {
             return text.replace(/\.{2,}/g, '……');
         }
-
+    
         function convertText() {
             const input = document.getElementById("inputText").value;
-
+    
             const output = input.split(/(\s+)/).map(token => {
-                if (isUrl(token) || isEnglishWord(token) || isNumericSequence(token)) {
+                // 如果是图片格式或链接，不进行标点转换
+                if (isUrl(token) || isImageFormat(token) || isEnglishWord(token) || isNumericSequence(token)) {
                     return token;
                 }
-
+    
                 return token.split('').map((char, index, arr) => {
                     if (arr.slice(index, index + 2).join('') === '..') {
                         return '';
                     }
-
+    
                     if (char === '.' && index > 0 && /\d/.test(arr[index - 1])) {
                         return '.';
                     }
-
+    
                     char = handleQuotes(char);
-
+    
                     if (charMap[char]) {
                         return charMap[char];
                     }
-
+    
                     return char;
                 }).join('');
             }).join('');
-
+    
             document.getElementById("outputText").value = convertEllipsis(output);
         }
     </script>
-</body>
-</html>
+    
